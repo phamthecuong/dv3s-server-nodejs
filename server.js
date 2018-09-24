@@ -8,7 +8,6 @@ app.get('/', function (req, res) {
     res.send('server in running');
 });
 
-
 var UserManager = {
     userList: [],
     socketList: []
@@ -46,6 +45,7 @@ io.sockets.on('connection', function(socket) {
     function handleDataReceive(data, socket) {
         switch(data.type) {
             case 'user_info':
+                console.log(socket.handshake.headers);
                 console.log("user connect", data);
                 var index = (UserManager.socketList).map(function(item) { return item.id; }).indexOf(socket.id);
                 if(index !== -1) { return; }
@@ -55,8 +55,9 @@ io.sockets.on('connection', function(socket) {
 
                 user.type_device = data.data;
                 user.id = socket.id;
-                user.ip = data.ip;
+                user.ip = socket.handshake.headers['x-forwarded-for'];
                 user.status = 'disconnected';
+
                 
                 UserManager.userList.push(user);                
                 UserManager.socketList.push(socket);                
@@ -64,11 +65,11 @@ io.sockets.on('connection', function(socket) {
                     object.type = 'add_player';
                     object.id = socket.id;
                     object.ip = data.ip;
+                    object.socket = socket.handshake.headers;
                     sendMessageToGlobal(socket, object);
                 } else {
                     object.type = 'user_list';
-                    object.data = FilterUser(data.ip);
-                    console.log("object control", object);
+                    object.data = FilterUser(socket.handshake.headers['x-forwarded-for']);
                     sendMessageToClient(socket, object);
                 }
                 break;
