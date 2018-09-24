@@ -1,7 +1,7 @@
 {
-  "name": "server connect peer to peer",
+  "name": "socket-chat-example",
   "version": "0.0.1",
-  "description": "server for DV3SUI",
+  "description": "my first socket.io app",
   "dependencies": {
     "browserify-middleware": "^8.1.1",
     "express": "^4.15.2",
