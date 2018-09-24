@@ -64,8 +64,8 @@ io.sockets.on('connection', function(socket) {
                 if(user.type_device === 'player') {
                     object.type = 'add_player';
                     object.id = socket.id;
-                    object.ip = data.ip;
-                    object.socket = socket.handshake.headers;
+                    object.ip = socket.handshake.headers['x-forwarded-for'];
+                    
                     sendMessageToGlobal(socket, object);
                 } else {
                     object.type = 'user_list';
