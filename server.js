@@ -46,25 +46,29 @@ io.sockets.on('connection', function(socket) {
     function handleDataReceive(data, socket) {
         switch(data.type) {
             case 'user_info':
+                console.log("user connect", data);
                 var index = (UserManager.socketList).map(function(item) { return item.id; }).indexOf(socket.id);
                 if(index !== -1) { return; }
                 
                 var object = {};
                 var user = {};
+
                 user.type_device = data.data;
                 user.id = socket.id;
+                user.ip = data.ip;
                 user.status = 'disconnected';
-                UserManager.userList.push(user);
                 
-                UserManager.socketList.push(socket);
-                
+                UserManager.userList.push(user);                
+                UserManager.socketList.push(socket);                
                 if(user.type_device === 'player') {
                     object.type = 'add_player';
                     object.id = socket.id;
+                    object.ip = data.ip;
                     sendMessageToGlobal(socket, object);
                 } else {
                     object.type = 'user_list';
-                    object.data = UserManager.userList;
+                    object.data = FilterUser(data.ip);
+                    console.log("object control", object);
                     sendMessageToClient(socket, object);
                 }
                 break;
@@ -77,6 +81,16 @@ io.sockets.on('connection', function(socket) {
                 break;
             default:
         }
+    }
+
+    function FilterUser(ipControl) {
+        var userList = []; 
+        UserManager.userList.forEach(function(data) {
+            if (data.type_device === 'player' && data.ip === ipControl) {
+                userList.push(data);
+            }
+        })
+        return userList;
     }
     
     function handleEvent(socketId, data) {
