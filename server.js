@@ -45,7 +45,6 @@ io.sockets.on('connection', function(socket) {
     function handleDataReceive(data, socket) {
         switch(data.type) {
             case 'user_info':
-                console.log(socket.handshake.headers);
                 console.log("user connect", data);
                 var index = (UserManager.socketList).map(function(item) { return item.id; }).indexOf(socket.id);
                 if(index !== -1) { return; }
@@ -57,7 +56,6 @@ io.sockets.on('connection', function(socket) {
                 user.id = socket.id;
                 user.ip = socket.handshake.headers['x-forwarded-for'];
                 user.status = 'disconnected';
-
                 
                 UserManager.userList.push(user);                
                 UserManager.socketList.push(socket);                
@@ -70,6 +68,7 @@ io.sockets.on('connection', function(socket) {
                 } else {
                     object.type = 'user_list';
                     object.data = FilterUser(socket.handshake.headers['x-forwarded-for']);
+                    object.ip   = socket.handshake.headers['x-forwarded-for'];
                     sendMessageToClient(socket, object);
                 }
                 break;
